@@ -185,11 +185,40 @@ go test ./...
 
 ## Security Considerations
 
-1. **OAuth Configuration**: Ensure OAuth client credentials are kept secure and not committed to version control
-2. **Token Validation**: In production, implement proper token validation with the OAuth provider
-3. **HTTPS**: Always use HTTPS in production to protect tokens in transit
-4. **Policy Management**: Regularly review and update Casbin policies
-5. **Audit Logging**: Consider adding audit logging for authorization decisions
+### Important: OAuth Token Validation
+
+⚠️ **CRITICAL**: The current OAuth middleware implementation uses a **mock token validation** for demonstration purposes. This accepts any non-empty Bearer token and returns test user data.
+
+**Before deploying to production**, you MUST implement proper token validation:
+
+#### Option 1: OAuth Provider's Userinfo Endpoint
+```go
+token := &oauth2.Token{AccessToken: tokenString}
+client := m.config.Client(ctx, token)
+resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+// Parse and validate response
+```
+
+#### Option 2: JWT Token Validation
+For JWT tokens, verify signature and claims using a library like `github.com/golang-jwt/jwt`:
+```go
+token, err := jwt.Parse(tokenString, keyFunc)
+// Validate claims, expiry, issuer, audience
+```
+
+#### Option 3: OAuth2 Token Introspection (RFC 7662)
+```go
+// POST the token to the provider's introspection endpoint
+// Validate the response
+```
+
+### Other Security Best Practices
+
+1. **OAuth Configuration**: Keep OAuth client credentials secure and never commit them to version control
+2. **Token Security**: Always use HTTPS in production to protect tokens in transit
+3. **Policy Management**: Regularly review and update Casbin policies
+4. **Audit Logging**: Consider adding audit logging for authorization decisions
+5. **Beego Version**: Note that Beego 1.x has known vulnerabilities. This implementation uses 1.12.12 as specified, but consider upgrading to Beego 2.x for production use
 
 ## Contributing
 

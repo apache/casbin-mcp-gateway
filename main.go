@@ -11,11 +11,12 @@ func main() {
 	oauthMiddleware := middleware.NewOAuthMiddleware()
 	casbinMiddleware := middleware.NewCasbinMiddleware()
 
-	// Register middleware with Beego
-	// OAuth authentication middleware runs first
-	beego.InsertFilter("*", beego.BeforeRouter, oauthMiddleware.Filter)
-	// Casbin authorization middleware runs after authentication
-	beego.InsertFilter("*", beego.BeforeRouter, casbinMiddleware.Filter)
+	// Register middleware with Beego in specific order
+	// OAuth authentication middleware runs first to identify the user
+	beego.InsertFilter("*", beego.BeforeRouter, oauthMiddleware.Filter, false)
+	// Casbin authorization middleware runs after authentication to check permissions
+	// Using the same stage (BeforeRouter) - execution order is guaranteed by registration order
+	beego.InsertFilter("*", beego.BeforeRouter, casbinMiddleware.Filter, false)
 
 	// Register routes
 	beego.Router("/", &controllers.MainController{})

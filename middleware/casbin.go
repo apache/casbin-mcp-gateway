@@ -27,7 +27,9 @@ func NewCasbinMiddleware() *CasbinMiddleware {
 	// Create model
 	m, err := model.NewModelFromFile(modelPath)
 	if err != nil {
-		beego.Warn("Failed to load Casbin model from file, using default model:", err)
+		// Using default model for testing/development purposes
+		// In production, consider failing fast if model file is missing
+		beego.Info("Casbin model file not found, using default RBAC model:", err)
 		// Use default model if file doesn't exist
 		m = getDefaultModel()
 	}
@@ -40,8 +42,9 @@ func NewCasbinMiddleware() *CasbinMiddleware {
 	// Create enforcer
 	enforcer, err = casbin.NewEnforcer(m, adapter)
 	if err != nil {
-		beego.Warn("Failed to create Casbin enforcer with file adapter, creating without adapter:", err)
-		// Create enforcer without adapter if it fails
+		beego.Info("Failed to create Casbin enforcer with file adapter, creating without adapter (empty policy):", err)
+		// Create enforcer without adapter if it fails (useful for testing)
+		// In production, you may want to fail fast instead
 		enforcer, err = casbin.NewEnforcer(m)
 		if err != nil {
 			beego.Error("Failed to create Casbin enforcer:", err)
@@ -51,7 +54,7 @@ func NewCasbinMiddleware() *CasbinMiddleware {
 		// Load policy only if adapter was created successfully
 		err = enforcer.LoadPolicy()
 		if err != nil {
-			beego.Warn("Failed to load policy from file, using empty policy:", err)
+			beego.Warn("Failed to load policy from file, starting with empty policy:", err)
 		}
 	}
 

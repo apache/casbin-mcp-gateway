@@ -96,16 +96,28 @@ type UserInfo struct {
 
 // validateToken validates the OAuth token and extracts user information
 func (m *OAuthMiddleware) validateToken(ctx context.Context, tokenString string) (*UserInfo, error) {
-	// In a real implementation, this would:
-	// 1. Validate the token with the OAuth provider
-	// 2. Verify token signature and expiry
-	// 3. Extract user information from token claims or userinfo endpoint
-
-	// For demonstration purposes, we'll implement a simple mock validation
-	// In production, you would use the OAuth2 client to verify the token:
-	// token := &oauth2.Token{AccessToken: tokenString}
-	// client := m.config.Client(ctx, token)
-	// resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	// IMPORTANT: This is a simplified mock implementation for demonstration purposes.
+	// In a PRODUCTION environment, you MUST implement proper token validation:
+	//
+	// Option 1: Validate with OAuth provider's token introspection endpoint
+	//   Example:
+	//     token := &oauth2.Token{AccessToken: tokenString}
+	//     client := m.config.Client(ctx, token)
+	//     resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	//     if err != nil {
+	//         return nil, fmt.Errorf("failed to validate token: %w", err)
+	//     }
+	//     defer resp.Body.Close()
+	//     // Parse user info from response
+	//
+	// Option 2: For JWT tokens, verify signature and claims
+	//   Use a library like github.com/golang-jwt/jwt to validate JWT tokens
+	//
+	// Option 3: Use OAuth2 token introspection (RFC 7662)
+	//   POST the token to the provider's introspection endpoint
+	//
+	// This mock validation accepts any non-empty token and returns test user data.
+	// Replace this with actual validation before deploying to production.
 
 	if tokenString == "" {
 		return nil, fmt.Errorf("empty token")

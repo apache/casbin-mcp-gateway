@@ -23,6 +23,13 @@ func main() {
 	beego.Router("/api/resource", &controllers.ResourceController{})
 	beego.Router("/api/admin", &controllers.AdminController{})
 
+	// OAuth routes (skip authentication/authorization middleware)
+	oauthController := &controllers.OAuthController{}
+	beego.Router("/oauth/login", oauthController, "get:Get")
+	beego.Router("/oauth/callback", oauthController, "get:Callback")
+	beego.Router("/oauth/info", oauthController, "get:Info")
+	beego.Router("/oauth/logout", oauthController, "post:Logout")
+
 	// Run the application
 	beego.Run()
 }

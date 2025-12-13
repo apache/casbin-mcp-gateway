@@ -109,17 +109,56 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 ### API Endpoints
 
 - `GET /` - Public endpoint, returns gateway information
+- `GET /oauth/login` - Initiates OAuth login flow, redirects to OAuth provider
+- `GET /oauth/callback` - OAuth callback endpoint, exchanges code for token
+- `GET /oauth/info` - Returns authenticated user information (requires authentication)
+- `POST /oauth/logout` - Logs out the current user
 - `GET /api/resource` - Protected endpoint, requires authentication and authorization
 - `POST /api/resource` - Protected endpoint, requires authentication and authorization
 - `GET /api/admin` - Admin-only endpoint, requires admin role
 
 ### Authentication Flow
 
-1. Client requests a protected resource with an OAuth token
-2. OAuth middleware validates the token and extracts user information
-3. User identity is stored in the request context
-4. Casbin middleware checks if the user has permission to access the resource
-5. If authorized, the request proceeds to the controller
+#### Option 1: Using OAuth Login Flow
+
+1. User navigates to `/oauth/login`
+2. Gateway redirects to OAuth provider's authorization page
+3. User authorizes the application
+4. OAuth provider redirects back to `/oauth/callback` with authorization code
+5. Gateway exchanges code for access token
+6. Gateway returns the access token to the user
+7. User includes the access token in subsequent API requests
+
+#### Option 2: Using Existing OAuth Token
+
+1. Client obtains OAuth token from provider directly
+2. Client requests a protected resource with the token
+3. OAuth middleware validates the token and extracts user information
+4. User identity is stored in the request context
+5. Casbin middleware checks if the user has permission to access the resource
+6. If authorized, the request proceeds to the controller
+
+### Example Usage
+
+#### Complete OAuth Flow
+
+```bash
+# Step 1: Initiate OAuth login (in browser)
+open http://localhost:8080/oauth/login
+
+# Step 2: After authorization, get the access token from callback response
+# The callback will return JSON with access_token
+
+# Step 3: Use the token to access protected resources
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     http://localhost:8080/api/resource
+
+# Step 4: Get user information
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     http://localhost:8080/oauth/info
+```
+
+#### Direct Token Usage
 
 ## Middleware System
 
@@ -166,7 +205,8 @@ mcp-gateway/
 ├── controllers/         # Request handlers
 │   ├── main.go         # Main controller
 │   ├── resource.go     # Resource controller
-│   └── admin.go        # Admin controller
+│   ├── admin.go        # Admin controller
+│   └── oauth.go        # OAuth flow controller
 ├── go.mod              # Go module definition
 └── README.md           # This file
 ```

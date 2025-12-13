@@ -27,25 +27,32 @@ func NewCasbinMiddleware() *CasbinMiddleware {
 	// Create model
 	m, err := model.NewModelFromFile(modelPath)
 	if err != nil {
-		beego.Error("Failed to load Casbin model:", err)
+		beego.Warn("Failed to load Casbin model from file, using default model:", err)
 		// Use default model if file doesn't exist
 		m = getDefaultModel()
 	}
+
+	var enforcer *casbin.Enforcer
 
 	// Create adapter
 	adapter := fileadapter.NewAdapter(policyPath)
 
 	// Create enforcer
-	enforcer, err := casbin.NewEnforcer(m, adapter)
+	enforcer, err = casbin.NewEnforcer(m, adapter)
 	if err != nil {
-		beego.Error("Failed to create Casbin enforcer:", err)
-		panic(err)
-	}
-
-	// Load policy
-	err = enforcer.LoadPolicy()
-	if err != nil {
-		beego.Warn("Failed to load policy, using empty policy:", err)
+		beego.Warn("Failed to create Casbin enforcer with file adapter, creating without adapter:", err)
+		// Create enforcer without adapter if it fails
+		enforcer, err = casbin.NewEnforcer(m)
+		if err != nil {
+			beego.Error("Failed to create Casbin enforcer:", err)
+			panic(err)
+		}
+	} else {
+		// Load policy only if adapter was created successfully
+		err = enforcer.LoadPolicy()
+		if err != nil {
+			beego.Warn("Failed to load policy from file, using empty policy:", err)
+		}
 	}
 
 	return &CasbinMiddleware{
@@ -162,4 +169,9 @@ func (m *CasbinMiddleware) GetPolicy() [][]string {
 // SavePolicy saves the current policy to storage
 func (m *CasbinMiddleware) SavePolicy() error {
 	return m.enforcer.SavePolicy()
+}
+
+// GetEnforcer returns the underlying Casbin enforcer
+func (m *CasbinMiddleware) GetEnforcer() *casbin.Enforcer {
+	return m.enforcer
 }

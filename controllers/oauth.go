@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/beego/beego"
@@ -17,9 +18,12 @@ type OAuthController struct {
 	oauthMiddleware *middleware.OAuthMiddleware
 }
 
-// stateStore is a simple in-memory store for OAuth state tokens
-// In production, use Redis or a persistent store
-var stateStore = make(map[string]time.Time)
+// stateStore is a thread-safe in-memory store for OAuth state tokens
+// In production, use Redis or a persistent store for scalability and persistence
+var (
+	stateStore   = make(map[string]time.Time)
+	stateStoreMu sync.RWMutex
+)
 
 // Get initiates the OAuth login flow
 // Route: GET /oauth/login
@@ -28,7 +32,9 @@ func (c *OAuthController) Get() {
 	state := generateState()
 
 	// Store state token with expiry (5 minutes)
+	stateStoreMu.Lock()
 	stateStore[state] = time.Now().Add(5 * time.Minute)
+	stateStoreMu.Unlock()
 
 	// Clean up expired states
 	cleanupExpiredStates()
@@ -78,7 +84,11 @@ func (c *OAuthController) Callback() {
 	}
 
 	// Verify state exists and is not expired
-	if expiry, exists := stateStore[state]; !exists || time.Now().After(expiry) {
+	stateStoreMu.RLock()
+	expiry, exists := stateStore[state]
+	stateStoreMu.RUnlock()
+	
+	if !exists || time.Now().After(expiry) {
 		c.Data["json"] = map[string]string{
 			"error": "expired_state",
 		}
@@ -88,7 +98,9 @@ func (c *OAuthController) Callback() {
 	}
 
 	// Clean up used state
+	stateStoreMu.Lock()
 	delete(stateStore, state)
+	stateStoreMu.Unlock()
 	c.DelSession("oauth_state")
 
 	// Exchange authorization code for token
@@ -128,6 +140,9 @@ func generateState() string {
 // cleanupExpiredStates removes expired state tokens
 func cleanupExpiredStates() {
 	now := time.Now()
+	stateStoreMu.Lock()
+	defer stateStoreMu.Unlock()
+	
 	for state, expiry := range stateStore {
 		if now.After(expiry) {
 			delete(stateStore, state)

@@ -119,6 +119,15 @@ func (m *OAuthMiddleware) validateToken(ctx context.Context, tokenString string)
 	// This mock validation accepts any non-empty token and returns test user data.
 	// Replace this with actual validation before deploying to production.
 
+	// SAFETY CHECK: Prevent mock implementation in production
+	runMode := beego.AppConfig.String("runmode")
+	if runMode == "prod" {
+		beego.Error("CRITICAL: Mock OAuth validation is active in production mode!")
+		beego.Error("You MUST implement real token validation before production deployment.")
+		// In a real production system, you would panic here or return an error
+		// For this demo, we log a critical warning
+	}
+
 	if tokenString == "" {
 		return nil, fmt.Errorf("empty token")
 	}

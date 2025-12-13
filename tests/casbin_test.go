@@ -122,7 +122,7 @@ func TestCasbinMiddlewareAdminUser(t *testing.T) {
 
 	// Add policies for admin role and assign role to admin_user
 	casbinMiddleware.AddPolicy("admin", "/api/admin", "GET")
-	// Add role assignment (using AddGroupingPolicy for role inheritance)
+	// Add role assignment (using AddGroupingPolicy for role membership)
 	casbinMiddleware.GetEnforcer().AddGroupingPolicy("admin_user", "admin")
 
 	// Test request with admin user

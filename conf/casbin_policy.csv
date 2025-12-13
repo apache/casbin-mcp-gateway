@@ -1,0 +1,7 @@
+p, demo_user, /api/resource, GET
+p, demo_user, /api/resource, POST
+p, admin, /api/resource, GET
+p, admin, /api/resource, POST
+p, admin, /api/admin, GET
+
+g, admin_user, admin

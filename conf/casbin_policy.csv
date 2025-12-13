@@ -1,7 +1,11 @@
 p, demo_user, /api/resource, GET
 p, demo_user, /api/resource, POST
+p, demo_user, /mcp/tools, GET
+p, demo_user, /mcp/tools/call, POST
 p, admin, /api/resource, GET
 p, admin, /api/resource, POST
 p, admin, /api/admin, GET
+p, admin, /mcp/tools, GET
+p, admin, /mcp/tools/call, POST
 
 g, admin_user, admin

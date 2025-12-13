@@ -30,6 +30,11 @@ func main() {
 	beego.Router("/oauth/info", oauthController, "get:Info")
 	beego.Router("/oauth/logout", oauthController, "post:Logout")
 
+	// MCP proxy routes (requires authentication and authorization)
+	mcpController := &controllers.MCPController{}
+	beego.Router("/mcp/tools", mcpController, "get:ListTools")
+	beego.Router("/mcp/tools/call", mcpController, "post:CallTool")
+
 	// Run the application
 	beego.Run()
 }

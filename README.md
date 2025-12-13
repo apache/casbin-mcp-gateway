@@ -1,6 +1,6 @@
 # MCP Gateway
 
-A Golang HTTP gateway built with Beego 1.x framework, featuring a middleware system that supports OAuth authentication and Casbin authorization.
+A Golang HTTP gateway built with Beego 1.x framework, featuring a middleware system that supports OAuth authentication and Casbin authorization. Acts as a reverse proxy for MCP (Model Context Protocol) API calls.
 
 ## Features
 
@@ -8,14 +8,16 @@ A Golang HTTP gateway built with Beego 1.x framework, featuring a middleware sys
 - **Middleware System**: Stackable HTTP middleware architecture
 - **OAuth Authentication**: Supports OAuth 2.0 for user authentication (recommended by MCP)
 - **Casbin Authorization**: Policy-based access control using Casbin
-- **Request Flow**: OAuth authentication → User identification → Casbin authorization
+- **MCP Reverse Proxy**: Intercepts and proxies MCP tool list and tool call APIs
+- **Request Flow**: OAuth authentication → User identification → Casbin authorization → MCP API proxy
 
 ## Architecture
 
-The gateway implements a layered middleware approach:
+The gateway implements a layered middleware approach and acts as a reverse proxy for MCP APIs:
 
 1. **OAuth Middleware**: Authenticates requests using OAuth 2.0 tokens and identifies users
 2. **Casbin Middleware**: Enforces authorization policies based on authenticated user identity
+3. **MCP Proxy**: Forwards authorized requests to the upstream MCP server
 
 ## Installation
 
@@ -33,6 +35,9 @@ Edit `conf/app.conf` to configure the gateway:
 appname = mcp-gateway
 httpport = 8080
 runmode = dev
+
+# MCP Upstream Server Configuration
+mcp.upstream_url = http://localhost:3000
 
 # OAuth2 Configuration
 oauth2.client_id = YOUR_CLIENT_ID
@@ -116,6 +121,11 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 - `GET /api/resource` - Protected endpoint, requires authentication and authorization
 - `POST /api/resource` - Protected endpoint, requires authentication and authorization
 - `GET /api/admin` - Admin-only endpoint, requires admin role
+
+### MCP API Endpoints (Proxied to Upstream)
+
+- `GET /mcp/tools` - List available MCP tools (requires authentication and authorization)
+- `POST /mcp/tools/call` - Execute an MCP tool call (requires authentication and authorization)
 
 ### Authentication Flow
 
@@ -255,10 +265,9 @@ token, err := jwt.Parse(tokenString, keyFunc)
 ### Other Security Best Practices
 
 1. **OAuth Configuration**: Keep OAuth client credentials secure and never commit them to version control
-2. **Token Security**: Always use HTTPS in production to protect tokens in transit
-3. **Policy Management**: Regularly review and update Casbin policies
-4. **Audit Logging**: Consider adding audit logging for authorization decisions
-5. **Beego Version**: Note that Beego 1.x has known vulnerabilities. This implementation uses 1.12.12 as specified, but consider upgrading to Beego 2.x for production use
+2. **Policy Management**: Regularly review and update Casbin policies
+3. **Audit Logging**: Consider adding audit logging for authorization decisions
+4. **Beego Version**: Note that Beego 1.x has known vulnerabilities. This implementation uses 1.12.12 as specified, but consider upgrading to Beego 2.x for production use
 
 ## Contributing
 

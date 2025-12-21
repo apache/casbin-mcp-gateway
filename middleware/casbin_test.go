@@ -29,7 +29,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+m = g(r.sub, p.sub) && keyMatch2(r.obj, p.obj) && r.act == p.act
 `
 	if err := os.WriteFile(modelPath, []byte(modelContent), 0644); err != nil {
 		t.Fatalf("Failed to create model file: %v", err)

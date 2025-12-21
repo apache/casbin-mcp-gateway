@@ -1,0 +1,9 @@
+p, admin, /api/*, GET
+p, admin, /api/*, POST
+p, admin, /api/*, PUT
+p, admin, /api/*, DELETE
+p, user, /api/users/*, GET
+p, user, /api/profile, GET
+p, user, /api/profile, PUT
+g, alice, admin
+g, bob, user

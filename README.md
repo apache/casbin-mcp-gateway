@@ -1,5 +1,12 @@
 # mcp-gateway
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/casbin/mcp-gateway)](https://goreportcard.com/report/github.com/casbin/mcp-gateway)
+[![Build](https://github.com/casbin/mcp-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/casbin/mcp-gateway/actions/workflows/ci.yml)
+[![Coverage Status](https://codecov.io/gh/casbin/mcp-gateway/branch/master/graph/badge.svg)](https://codecov.io/gh/casbin/mcp-gateway)
+[![Godoc](https://godoc.org/github.com/casbin/mcp-gateway?status.svg)](https://pkg.go.dev/github.com/casbin/mcp-gateway)
+[![Release](https://img.shields.io/github/release/casbin/mcp-gateway.svg)](https://github.com/casbin/mcp-gateway/releases/latest)
+[![License](https://img.shields.io/github/license/casbin/mcp-gateway.svg)](https://github.com/casbin/mcp-gateway/blob/master/LICENSE)
+
 A Golang HTTP gateway with OAuth authentication and Casbin authorization middleware, built with Beego web framework and a React frontend.
 
 ## Features

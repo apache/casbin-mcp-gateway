@@ -68,30 +68,5 @@ func OAuth() beego.FilterFunc {
 
 // isPublicPath checks if the path should skip authentication
 func isPublicPath(path string) bool {
-	publicPaths := []string{
-		"/login",
-		"/health",
-		"/static/",
-		"/favicon.ico",
-	}
-
-	// Check for exact matches or prefixes
-	for _, publicPath := range publicPaths {
-		if path == publicPath || strings.HasPrefix(path, publicPath) {
-			return true
-		}
-	}
-
-	// Allow static file extensions
-	if strings.HasSuffix(path, ".html") ||
-		strings.HasSuffix(path, ".css") ||
-		strings.HasSuffix(path, ".js") ||
-		strings.HasSuffix(path, ".png") ||
-		strings.HasSuffix(path, ".jpg") ||
-		strings.HasSuffix(path, ".ico") ||
-		strings.HasSuffix(path, ".svg") {
-		return true
-	}
-
-	return false
+	return path == "/login" || path == "/health"
 }

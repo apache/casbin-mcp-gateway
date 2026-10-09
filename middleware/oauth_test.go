@@ -87,12 +87,14 @@ func TestPublicPaths(t *testing.T) {
 	}{
 		{"/login", true},
 		{"/health", true},
-		{"/static/css/app.css", true},
-		{"/favicon.ico", true},
-		{"/index.html", true},
-		{"/app.css", true},
-		{"/app.js", true},
+		{"/static/css/app.css", false},
+		{"/favicon.ico", false},
+		{"/index.html", false},
+		{"/app.css", false},
+		{"/app.js", false},
+		{"/loginX", false},
 		{"/api/users", false},
+		{"/api/users/x.js", false},
 		{"/api/profile", false},
 	}
 
